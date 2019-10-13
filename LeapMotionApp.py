@@ -97,7 +97,7 @@ class LeapMotionListener(Leap.Listener):
                 swipeDir = swipe.direction
                 if (swipeDir.x > 0 and math.fabs(swipeDir.x) > math.fabs(swipeDir.y)):
                     print "Swiped Right"
-                elif (swipeDir.x < 0 and math.fabs(swipeDir.x) > math.fabs(swipeDir.y):
+                elif (swipeDir.x < 0 and math.fabs(swipeDir.x) > math.fabs(swipeDir.y)):
                     print "Swiped Left"
                 """print "Swipe ID: " + str(swipe.id) + " State: " + self.state_names[gesture.state] \
                     + " Position: " + str(swipe.position) + " Direction: " + str(swipe.direction) \
