@@ -1,3 +1,4 @@
+#Python 2.7
 import csv
 import os.path
 import time
@@ -5,12 +6,15 @@ import collections
 import Leap, sys, thread, time, math
 from Leap import Bone
 
+training_data = "data.csv"
+testing_data = "testing.csv"
+
 def getData(controller):
     frame = controller.frame()
     try:
         handList = frame.hands
         if len(handList) != 1:
-            raise Exception('Incorrect Number of Hands')
+            raise Exception('Incorprect Number of Hands')
         currentHand = handList[0]
         fingers = currentHand.fingers
         palmPosition = currentHand.palm_position
@@ -38,13 +42,13 @@ def storeData(char, data):
     values.insert(0, char)
     keys.insert(0, "character")
     try:
-        if os.path.exists("data.csv") == False:
+        if os.path.exists("testing_data.csv") == False:
             #make file
-            f = open("data.csv","wb+")
+            f = open("testing_data.csv","wb+")
             writer = csv.writer(f)
             writer.writerow(keys)
             f.close()
-        with open('data.csv', 'ab+') as f:
+        with open('testing_data.csv', 'ab+') as f:
             writer=csv.writer(f)
             writer.writerow(values)
             f.close()
@@ -62,12 +66,12 @@ def countdown():
 def getChar(controller):
     while (True):
         char = raw_input("Enter the character: ")
-        countdown()
+        #countdown()
         data = getData(controller)
         if data == None:
             continue
         storeData(char, data)
-        time.sleep(2)
+        time.sleep(1)
         if char == "exit":
             sys.exit()
 

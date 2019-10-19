@@ -1,6 +1,54 @@
-Scikit Learn
+Nonon-normalized Data
+Using Scikit Learn SVM, Gamma 0.0001, C 100
+Training Score then Test Score
 
-Files:
--Train Data
--Get Data and Features
--Put Data into Excel
+Accuracy - 4 Sets of Data Per Letter
+0.9240506329113924
+0.6666666666666666
+
+Accuracy - 15 Sets of Data Per Letter
+Gamma: 0.0001
+0.9057239057239057
+0.797979797979798
+
+*Gamma: 0.00055
+0.9932659932659933
+0.7878787878787878
+
+Normalized:
+{'C': 10, 'gamma': 0.1, 'kernel': 'rbf'}
+0.9696969696969697
+0.7373737373737373
+
+ {'C': 50, 'gamma': 10, 'kernel': 'rbf'}
+0.8787878787878788
+0.7878787878787878
+
+Current Test:
+
+Actual Letter:  a  | Predicted Letter:  a  |  True  | Confidence:  49.51345790252945
+Actual Letter:  b  | Predicted Letter:  b  |  True  | Confidence:  42.02656094066952
+Actual Letter:  c  | Predicted Letter:  c  |  True  | Confidence:  38.13809500213034
+Actual Letter:  d  | Predicted Letter:  d  |  True  | Confidence:  30.30415843025941
+Actual Letter:  e  | Predicted Letter:  e  |  True  | Confidence:  43.00027098005006
+Actual Letter:  f  | Predicted Letter:  f  |  True  | Confidence:  44.87170277560948
+Actual Letter:  g  | Predicted Letter:  l  |  False  | Confidence:  23.800341307089653
+Actual Letter:  h  | Predicted Letter:  k  |  False  | Confidence:  36.09389678612578
+Actual Letter:  i  | Predicted Letter:  i  |  True  | Confidence:  40.03199726473188
+Actual Letter:  j  | Predicted Letter:  y  |  False  | Confidence:  44.69520405940127
+Actual Letter:  k  | Predicted Letter:  v  |  False  | Confidence:  29.263371059660148
+Actual Letter:  l  | Predicted Letter:  l  |  True  | Confidence:  49.19233828264087
+Actual Letter:  m  | Predicted Letter:  m  |  True  | Confidence:  33.50954251890955
+Actual Letter:  n  | Predicted Letter:  m  |  False  | Confidence:  29.652663019213122
+Actual Letter:  o  | Predicted Letter:  e  |  False  | Confidence:  14.140661529681363
+Actual Letter:  p  | Predicted Letter:  p  |  True  | Confidence:  32.30217288032241
+Actual Letter:  q  | Predicted Letter:  g  |  False  | Confidence:  24.661837717880168
+Actual Letter:  r  | Predicted Letter:  v  |  False  | Confidence:  24.302284099523842
+Actual Letter:  s  | Predicted Letter:  s  |  True  | Confidence:  20.221838143678195
+Actual Letter:  t  | Predicted Letter:  s  |  False  | Confidence:  32.700150587413326
+Actual Letter:  u  | Predicted Letter:  r  |  False  | Confidence:  36.14168504297749
+Actual Letter:  v  | Predicted Letter:  v  |  True  | Confidence:  27.348328124742345
+Actual Letter:  w  | Predicted Letter:  w  |  True  | Confidence:  40.1911206518763
+Actual Letter:  x  | Predicted Letter:  x  |  True  | Confidence:  28.26610017591973
+Actual Letter:  y  | Predicted Letter:  y  |  True  | Confidence:  46.89694493863876
+Actual Letter:  z  | Predicted Letter:  z  |  True  | Confidence:  33.3455020725953
