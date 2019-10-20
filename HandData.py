@@ -42,13 +42,13 @@ def storeData(char, data):
     values.insert(0, char)
     keys.insert(0, "character")
     try:
-        if os.path.exists("testing_data.csv") == False:
+        if os.path.exists("data.csv") == False:
             #make file
-            f = open("testing_data.csv","wb+")
+            f = open("data.csv","wb+")
             writer = csv.writer(f)
             writer.writerow(keys)
             f.close()
-        with open('testing_data.csv', 'ab+') as f:
+        with open('data.csv', 'ab+') as f:
             writer=csv.writer(f)
             writer.writerow(values)
             f.close()
