@@ -20,7 +20,7 @@ alphabet = list("abcdefghijklmnopqrstuvwxyz")
 df = pd.read_csv("data.csv", index_col=0)
 characters = df.index.values
 columns = df.columns[1:]
-x_train, x_test, y_train, y_test = train_test_split(df, characters, test_size = 0.25, train_size=0.75, random_state=0)
+x_train, x_test, y_train, y_test = train_test_split(df, characters, test_size = .2, train_size= .8, random_state=1)
 #Preprocess data
 #scaler = preprocessing.StandardScaler().fit(x_train)
 #x_train = scaler.transform(x_train)
@@ -30,17 +30,17 @@ x_train, x_test, y_train, y_test = train_test_split(df, characters, test_size = 
 
 ####Used to get best parameters
 
-#different_params = [{'kernel': ['rbf'], 'gamma': [1, 0.1, 0.01, 0.001, 0.00055, 0.0001, 0.00001, 10], 'C': [0.1, 1, 10, 50, 100]}]
-#clf_grid = GridSearchCV(svm.SVC(), different_params, cv=5, verbose=1) #cv
-#clf_grid.fit(x_train, y_train)
-#print("Best Parameters:\n", clf_grid.best_params_)
-#print("Best Estimators:\n", clf_grid.best_estimator_)
+# different_params = [{'kernel': ['rbf'], 'gamma': [1, 0.1, 0.01, 0.001, 0.00055, 0.0001, 0.00001, 10], 'C': [0.1, 1, 10, 50, 100]}]
+# clf_grid = GridSearchCV(svm.SVC(), different_params, cv=5, verbose=1) #cv
+# clf_grid.fit(x_train, y_train)
+# print("Best Parameters:\n", clf_grid.best_params_)
+# print("Best Estimators:\n", clf_grid.best_estimator_)
 
 #### 
 
 #Gamma is the amount of stretching in the z direction (dimensions)
 #C parameter is the tradeoff, when C is large, it tries to classify many more examples correctly by having a smaller margin hyperplane 
-clf = svm.SVC(kernel='rbf', C = 100.0, gamma=0.00055,probability=True) #Radial Basis Function Kernel with best results
+clf = svm.SVC(kernel='rbf', C = 100, gamma=0.00055,probability=True) #Radial Basis Function Kernel with best results
 clf.fit(x_train, y_train)
 print(clf.score(x_train, y_train))
 #x_test = scaler.transform(x_test)
