@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ASL-VR</title>
+    <meta name="description" content="Learning ASL in WebVR with Leap Motion">
+    <link id="favicon" rel="icon" href="https://cdn.glitch.com/4a066ef1-9c42-4c50-88b6-f259c389a9d3%2Ficon.svg?v=1572720780009" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    <script src="{{url_for('static', filename='leap-0.6.4.min.js')}}" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="{{url_for('static', filename='leap-plugins-0.1.12.min.js')}}" type="text/javascript"></script>
+    <script src="{{url_for('static', filename='VRControls.js')}}"></script>
+    <script src="{{url_for('static', filename='VREffect.js')}}"></script>
+  </head>
+  <body>
+    <div id="output">
+    </div>
+  </body>
+  <script>
+    Leap.loop()
+    Leap.loopController.on('frame', function(frame) { //PC 60 fps, Leap 120 fps
+      // document.getElementById('output').innerHTML = frame.id;
+      if(frame.hands.length > 0)
+      {
+          var hand = frame.hands[0];
+          var bonesDistArr = [];
+          hand.fingers.forEach(function(finger) {
+            finger.bones.forEach(function (bone) {
+              bonesDistArr.push(Leap.vec3.dist(bone.nextJoint, hand.palmPosition));
+            });
+          });
+          $.get("/api/data", {
+            data: JSON.stringify(bonesDistArr)
+            }, 
+            function(err, req, resp){
+              console.log(req, resp);
+            });
+      }
+    })
+      .use('transform', {
+        vr: true
+      })
+      .use('boneHand', {
+      targetEl: document.body
+      // scene
+    });
+    
+    //Render VR
+    var boneHand = Leap.loopController.plugins.boneHand;
+    var transform = Leap.loopController.plugins.transform;
+    var renderer = boneHand.renderer;
+    var scene = boneHand.scene;
+    var camera = boneHand.camera;
+    
+    //Splits Screen into two
+    var vreffect = new THREE.VREffect(renderer);
+    //Moves with VR
+    var vrcontrols = new THREE.VRControls(camera);
+    //camera's transform will be aplpied to hands and vr transform
+    transform.effectiveParent = camera;
+    
+    boneHand.render = function () {
+      vrcontrols.update();
+      vreffect.render(scene, camera);
+    }
+  </script>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "asl-web-vr",
+  "version": "0.0.1",
+  "description": "Learn ASL in Web VR using the Leap Motion",
+  "scripts": {
+    "start": "python server.py"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "browserify": "^16.5.0"
+  },
+  "engines": {
+    "node": "9.x"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/asl-vr"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch",
+    "express"
+  ]
+}
