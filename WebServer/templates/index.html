@@ -21,23 +21,28 @@
   </body>
   <script>
     Leap.loop()
+    var count = 0;
     Leap.loopController.on('frame', function(frame) { //PC 60 fps, Leap 120 fps
+      count += 1;
       // document.getElementById('output').innerHTML = frame.id;
-      if(frame.hands.length > 0)
+      if(frame.hands.length > 0 && count >= 20)
       {
           var hand = frame.hands[0];
           var bonesDistArr = [];
           hand.fingers.forEach(function(finger) {
             finger.bones.forEach(function (bone) {
-              bonesDistArr.push(Leap.vec3.dist(bone.nextJoint, hand.palmPosition));
+              //console.log(bone.nextJoint, "  " , hand.palmPosition , "  ", Leap.vec3.dist(bone.nextJoint, hand.palmPosition));
+              bonesDistArr.push(Math.abs(Leap.vec3.dist(bone.nextJoint, hand.palmPosition)) * 1000);
             });
           });
+          console.log(bonesDistArr);
           $.get("/api/data", {
-            data: JSON.stringify(bonesDistArr)
+            data: JSON.stringify({"boneData" : bonesDistArr})
             }, 
             function(err, req, resp){
-              console.log(req, resp);
+              console.log(resp.responseJSON);
             });
+          count = 0;
       }
     })
       .use('transform', {
