@@ -12,37 +12,77 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="{{url_for('static', filename='leap-plugins-0.1.12.min.js')}}" type="text/javascript"></script>
+    <script src="{{url_for('static', filename='leap-widgets-0.1.0.min.js')}}" type="text/javascript"></script>
     <script src="{{url_for('static', filename='VRControls.js')}}"></script>
     <script src="{{url_for('static', filename='VREffect.js')}}"></script>
+    <style>
+        body {
+          text-align: center;
+          font-weight: bold;
+          margin: 0px;
+          overflow: auto;
+        }
+      </style>
   </head>
   <body>
     <div id="output">
     </div>
   </body>
   <script>
-    Leap.loop()
+
+    Leap.loop();
+
+    var textFont = null;
+    var loader = new THREE.FontLoader();
+    loader.load( './static/fonts/helvetiker_regular.json', function(response) {
+      textFont = response;
+      renderText (chars[currCharIndex]);
+    });
+
+    var chars = "abcdefghijklmnopqrstuvwxyz".split('');
+    var currCharIndex = 0;
     var count = 0;
-    Leap.loopController.on('frame', function(frame) { //PC 60 fps, Leap 120 fps
+    var fps = 60;
+
+    var mesh;
+    var textMesh = null;
+
+    var options = {
+      enableGestures: true,
+      frameEventName: "frame"
+    };
+
+    Leap.loop(options, function(frame) { //PC 60 fps, Leap 120 fps
+
       count += 1;
-      // document.getElementById('output').innerHTML = frame.id;
-      if(frame.hands.length > 0 && count >= 20)
+      if (fps < 60)
+        fps -= 1;
+      if (fps <= 0) {
+        fps = 60;
+        renderImage();
+        if (textFont != null) renderText (chars[currCharIndex]);
+      }
+      if(frame.hands.length > 0 && count >= 20 && (fps >= 60))
       {
-          var hand = frame.hands[0];
-          var bonesDistArr = [];
-          hand.fingers.forEach(function(finger) {
-            finger.bones.forEach(function (bone) {
-              //console.log(bone.nextJoint, "  " , hand.palmPosition , "  ", Leap.vec3.dist(bone.nextJoint, hand.palmPosition));
-              bonesDistArr.push(Math.abs(Leap.vec3.dist(bone.nextJoint, hand.palmPosition)) * 1000);
-            });
+
+        var hand = frame.hands[0];
+        var bonesDistArr = [];
+        hand.fingers.forEach(function(finger) {
+          finger.bones.forEach(function (bone) {
+            bonesDistArr.push(Math.abs(Leap.vec3.dist(bone.nextJoint, hand.palmPosition)) * 1000);
           });
-          console.log(bonesDistArr);
-          $.get("/api/data", {
-            data: JSON.stringify({"boneData" : bonesDistArr})
-            }, 
-            function(err, req, resp){
-              console.log(resp.responseJSON);
-            });
-          count = 0;
+        });
+        $.get("/api/data", {
+          data: JSON.stringify({"boneData" : bonesDistArr})
+          }, 
+          function(err, req, resp){
+            var obj = Object.keys(resp.responseJSON);
+            if (obj[0] == chars[currCharIndex]) {
+              var string = "Predicted: " + obj[0].toString() + " with " + (resp.responseJSON[obj[0]] * 100).toFixed(2).toString() + "% Confidence";
+              changeLetter(string);
+            }
+          });
+        count = 0;
       }
     })
       .use('transform', {
@@ -52,6 +92,15 @@
       targetEl: document.body
       // scene
     });
+
+    function changeLetter (string) {
+      camera.remove(mesh);
+      currCharIndex++;
+      if (textFont != null) renderText (string);
+      if (currCharIndex >= chars.length)  
+        currCharIndex = 0;
+      fps -= 1;
+    }
     
     //Render VR
     var boneHand = Leap.loopController.plugins.boneHand;
@@ -70,6 +119,94 @@
     boneHand.render = function () {
       vrcontrols.update();
       vreffect.render(scene, camera);
+    };
+
+    function renderImage () {
+      var img = new Image();
+      var height;
+      var width;
+      img.src = "./static/images/" + chars[currCharIndex] + ".gif";
+      img.onload = function(){
+        height = img.height;
+        width = img.width;
+      }
+      //Render ASL letter image
+      // Create a texture loader so we can load the image file
+      var loader = new THREE.TextureLoader();
+      var material = new THREE.MeshLambertMaterial({ //Material for images without specular highlights
+        map: loader.load('./static/images/' + chars[currCharIndex] + ".gif")
+      });
+      //create a plane geometry for the image with a width of 10
+      // and a height that preserves the image's aspect ratio
+      var geometry = new THREE.PlaneGeometry(width, height);
+      // combine our image geometry and material into a mesh
+      mesh = new THREE.Mesh(geometry, material);
+      // set the position of the image mesh in the x,y,z dimensions
+      mesh.position.set(-.35, 0, -1.5);
+      camera.add(mesh);
     }
+
+    function renderText (inputText) {
+      if (textMesh != null) camera.remove(textMesh);
+      var textGeometry = new THREE.TextBufferGeometry( inputText , {
+        font: textFont,
+        size: .15,
+        height: 0, // extrusion
+        curveSegments: 12,
+        bevelThickness: .5,
+        bevelSize: .1,
+        bevelEnabled: false
+      });
+      textGeometry.center();
+      var material = new THREE.MeshBasicMaterial({ color: 000000 });
+      textMesh = new THREE.Mesh( textGeometry, material );
+      textMesh.position.set (1.75, 1, -5);
+      camera.add( textMesh );
+    };
+    
+    renderImage ();
+
+    // var axisHelper = new THREE.AxisHelper( 0.1 );
+    // scene.add( axisHelper );
+
+    // //Button to skip to next letter - https://raw.githubusercontent.com/leapmotion/leapjs-widgets/master/examples/button.html
+    // var planeGeo = new THREE.PlaneGeometry(0.1, 0.2);
+    // var material = new THREE.MeshPhongMaterial();
+    // var buttonMesh = new THREE.Mesh(planeGeo, material);
+    // buttonMesh.name = "Skip";
+    // var longThrow = -0.1;
+    // var squareButton = new PushButton(
+    //   new InteractablePlane(buttonMesh, Leap.loopController),
+    //   {
+    //     locking: false,
+    //     longThrow: longThrow
+    //   }
+    //   ).on('press', function(mesh){
+    //     mesh.material.color.setHex(0xccccff);
+    //   }).on('release', function(mesh){
+    //     mesh.material.color.setHex(0xeeeeee);
+    //   });
+    // squareButton.plane.hover(
+    //   function(mesh){ // over
+    //     console.log('hover in');
+    //     mesh.material.color.setHex(0xffccff);
+    //   },
+    //   function(mesh){ // out
+    //     console.log('hover out');
+    //     mesh.material.color.setHex(0xeeeeee);
+    //   }
+    // );
+
+  // var base = new THREE.Mesh(new THREE.BoxGeometry(0.1, longThrow, longThrow), new THREE.MeshPhongMaterial({color: 0x222222}));
+  // base.position.set(-0.25, .01, -1);
+  // base.rotateX(Math.PI * -0.15);
+  // base.rotateY(Math.PI * 0.1);
+  // buttonMesh.position.set(
+  //   -0.25, .01, -longThrow / 2
+  // );
+  // squareButton.plane.resetPosition(); // resets the original position, etc to the current one
+  // base.add(buttonMesh);
+  // scene.add(buttonMesh);
+
   </script>
 </html>
