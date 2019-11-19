@@ -66,6 +66,8 @@
       {
 
         var hand = frame.hands[0];
+        var palmVelocity =  hand.palmVelocity;
+        var handVelocity = Math.sqrt(Math.pow(palmVelocity[0], 2) + Math.pow(palmVelocity[1], 2) + Math.pow(palmVelocity[2], 2));
         var bonesDistArr = [];
         hand.fingers.forEach(function(finger) {
           finger.bones.forEach(function (bone) {
@@ -77,9 +79,13 @@
           }, 
           function(err, req, resp){
             var obj = Object.keys(resp.responseJSON);
+            console.log("Predicted: " + obj[0] + " Hand Velocity: " + handVelocity);
             if (obj[0] == chars[currCharIndex]) {
-              var string = "Predicted: " + obj[0].toString() + " with " + (resp.responseJSON[obj[0]] * 100).toFixed(2).toString() + "% Confidence";
-              changeLetter(string);
+              //Letters that require movement
+              if ((chars[currCharIndex] != "j" || chars[currCharIndex] != "z") || (handVelocity >= 300 && (chars[currCharIndex] == "j" || chars[currCharIndex] == "z"))) {
+                var string = "Predicted: " + obj[0].toString() + " with " + (resp.responseJSON[obj[0]] * 100).toFixed(2).toString() + "% Confidence";
+                changeLetter(string);
+              }
             }
           });
         count = 0;
@@ -121,6 +127,7 @@
       vreffect.render(scene, camera);
     };
 
+    //Render the ASL alphabet letter image depending on current index
     function renderImage () {
       var img = new Image();
       var height;
@@ -146,6 +153,7 @@
       camera.add(mesh);
     }
 
+    //Render the text on the screen using THREE.js
     function renderText (inputText) {
       if (textMesh != null) camera.remove(textMesh);
       var textGeometry = new THREE.TextBufferGeometry( inputText , {
@@ -163,50 +171,15 @@
       textMesh.position.set (1.75, 1, -5);
       camera.add( textMesh );
     };
-    
+
+    //Event Listener: Skip Functionality on Keyboard - Press Space to Skip
+    window.addEventListener("keydown", event => {
+      if (event.keyCode === 32) {
+        changeLetter ("Skipped Letter: " + chars[currCharIndex]);
+      }
+    });
+
+    //Render the First Image
     renderImage ();
-
-    // var axisHelper = new THREE.AxisHelper( 0.1 );
-    // scene.add( axisHelper );
-
-    // //Button to skip to next letter - https://raw.githubusercontent.com/leapmotion/leapjs-widgets/master/examples/button.html
-    // var planeGeo = new THREE.PlaneGeometry(0.1, 0.2);
-    // var material = new THREE.MeshPhongMaterial();
-    // var buttonMesh = new THREE.Mesh(planeGeo, material);
-    // buttonMesh.name = "Skip";
-    // var longThrow = -0.1;
-    // var squareButton = new PushButton(
-    //   new InteractablePlane(buttonMesh, Leap.loopController),
-    //   {
-    //     locking: false,
-    //     longThrow: longThrow
-    //   }
-    //   ).on('press', function(mesh){
-    //     mesh.material.color.setHex(0xccccff);
-    //   }).on('release', function(mesh){
-    //     mesh.material.color.setHex(0xeeeeee);
-    //   });
-    // squareButton.plane.hover(
-    //   function(mesh){ // over
-    //     console.log('hover in');
-    //     mesh.material.color.setHex(0xffccff);
-    //   },
-    //   function(mesh){ // out
-    //     console.log('hover out');
-    //     mesh.material.color.setHex(0xeeeeee);
-    //   }
-    // );
-
-  // var base = new THREE.Mesh(new THREE.BoxGeometry(0.1, longThrow, longThrow), new THREE.MeshPhongMaterial({color: 0x222222}));
-  // base.position.set(-0.25, .01, -1);
-  // base.rotateX(Math.PI * -0.15);
-  // base.rotateY(Math.PI * 0.1);
-  // buttonMesh.position.set(
-  //   -0.25, .01, -longThrow / 2
-  // );
-  // squareButton.plane.resetPosition(); // resets the original position, etc to the current one
-  // base.add(buttonMesh);
-  // scene.add(buttonMesh);
-
   </script>
 </html>
