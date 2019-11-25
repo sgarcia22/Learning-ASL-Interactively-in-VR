@@ -25,7 +25,7 @@ output_probability = output_name[1].name
 
 @app.route('/')
 def homepage():
-    return render_template('index.html')
+    return render_template('vrindex.html')
 
 @app.route('/api/data', methods=['GET'])
 def get_bone_data():

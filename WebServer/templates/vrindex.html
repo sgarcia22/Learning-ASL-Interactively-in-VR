@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>ASL-VR</title>
+    <meta name="description" content="Learning ASL in WebVR with Leap Motion">
+    <link id="favicon" rel="icon" href="https://cdn.glitch.com/4a066ef1-9c42-4c50-88b6-f259c389a9d3%2Ficon.svg?v=1572720780009" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+    <script src="{{url_for('static', filename='leap-0.6.4.min.js')}}" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>  
+    <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
+    <script src="//unpkg.com/aframe-leap-hands/dist/aframe-leap-hands.umd.js"></script>
+    <style>
+        body {
+            text-align: center;
+            font-weight: bold;
+            margin: 0px;
+            overflow: auto;
+        }
+        </style>
+    </head>
+    <body>
+        <a-scene>
+            <a-entity camera="near: 0.01" look-controls position="0 1.5 0">
+                <a-entity leap-hand="hand: left"></a-entity>
+                <a-entity leap-hand="hand: right"></a-entity>
+            </a-entity>
+            
+            <a-image id="image" src="./static/images/a.gif" position="-1 1 -2" rotation="0 25 0" width="1" height="1"></a-image>
+            <a-entity id="text" text="value: Sign the letter: a" position=".25 1 -2" width="5"></a-entity>
+            
+            <a-sky color="#191618"></a-sky>
+        </a-scene>
+    </body>
+    <script>
+        Leap.loop({optimizeHMD: true});
+
+        var chars = "abcdefghijklmnopqrstuvwxyz".split('');
+        var currCharIndex = 0;
+        var count = 0;
+        var fps = 60;
+
+        var options = {
+            enableGestures: true,
+            frameEventName: "frame"
+        };
+
+        Leap.loop(options, function(frame) { //PC 60 fps, Leap 120 fps
+
+        count += 1;
+        if (fps < 60)
+            fps -= 1;
+        if (fps <= 0) {
+            fps = 60;
+            changeImage();
+            changeText ("Sign the letter: " + chars[currCharIndex]);
+        }
+        if(frame.hands.length > 0 && count >= 20 && (fps >= 60)) {
+            var hand = frame.hands[0];
+            var palmVelocity =  hand.palmVelocity;
+            var handVelocity = Math.sqrt(Math.pow(palmVelocity[0], 2) + Math.pow(palmVelocity[1], 2) + Math.pow(palmVelocity[2], 2));
+            var bonesDistArr = [];
+            hand.fingers.forEach(function(finger) {
+                finger.bones.forEach(function (bone) {
+                bonesDistArr.push(Math.abs(Leap.vec3.dist(bone.nextJoint, hand.palmPosition)) * 1000);
+                });
+            });
+            $.get("/api/data", {
+                data: JSON.stringify({"boneData" : bonesDistArr})
+                }, 
+                function(err, req, resp){
+                var obj = Object.keys(resp.responseJSON);
+                if (obj[0] == chars[currCharIndex]) {
+                    //Letters that require movement
+                    if ((chars[currCharIndex] != "j" || chars[currCharIndex] != "z") || (handVelocity >= 300 && (chars[currCharIndex] == "j" || chars[currCharIndex] == "z"))) {
+                        var string = "Predicted: " + obj[0].toString() + " with " + (resp.responseJSON[obj[0]] * 100).toFixed(2).toString() + "% Confidence";
+                        changeLetter(string);
+                    }
+                }
+                });
+                count = 0;
+            }
+        });
+
+        function changeLetter (string) {
+            currCharIndex++;
+            changeText (string);
+            if (currCharIndex >= chars.length)  
+                currCharIndex = 0;
+            fps -= 1;
+        }
+
+        function changeText (inputText) {
+            document.getElementById("text").setAttribute("text", "value: " + inputText);
+        }
+
+        function changeImage () {
+            var img = new Image();
+            var height;
+            var width;
+            img.src = "./static/images/" + chars[currCharIndex] + ".gif";
+            img.onload = function() {
+                height = img.height;
+                width = img.width;
+            }
+            var docImage = document.getElementById("image");
+            docImage.setAttribute("src", img.src);
+            docImage.setAttribute("width", width);
+            docImage.setAttribute("height", height);
+        }
+
+        //Event Listener: Skip Functionality on Keyboard - Press Space to Skip
+        window.addEventListener("keydown", event => {
+            if (event.keyCode === 32) {
+                changeLetter ("Skipped Letter: " + chars[currCharIndex]);
+            }
+        });
+
+        changeImage ();
+
+    </script>
+</html>
