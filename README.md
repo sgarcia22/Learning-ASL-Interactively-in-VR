@@ -6,8 +6,13 @@ Python Packages:<br/>
 -flask<br/>
 -numpy<br/>
 -onnxruntime<br/>
-
 -------------------
-
-
-[Work in Progress]<br/>
+JS Scripts - Leap Motion API<br/>
+leap-0.6.4.min.js<br/>
+-------------------
+# Link to Project: 
+https://asl-leap-motion-vr.glitch.me/<br/>
+Requires Leap Motion<br/>
+<br/>
+Optimized for HMD<br/>
+Play in browser that supports VR - Firefox and Chrome w/ Flags enabled<br/>
