@@ -1,14 +1,13 @@
-# Learning-ASL-Interactively-in-VR
-Senior Project: Learn ASL in VR using the Leap Motion<br/>
-==================================
-# Python Scripts - Model Training and Acquiring Data<br/>
+# Learning-ASL-Interactively-in-VR <br/>
+
+__Python Scripts - Model Training and Acquiring Data__<br/>
 Python Packages:<br/>
 -flask<br/>
 -numpy<br/>
--onnxruntime<br/>
-# JS Scripts - Leap Motion API<br/>
-leap-0.6.4.min.js<br/>
-# Link to Project: 
+-onnxruntime<br/><br/>
+__JS Scripts - Leap Motion API__<br/>
+leap-0.6.4.min.js<br/><br/>
+__Link to Project:__</br> 
 https://asl-leap-motion-vr.glitch.me/<br/>
 Requires Leap Motion: enable Allow Web Apps in Leap Motion Control Panel<br/>
 <br/>
